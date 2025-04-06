@@ -75,6 +75,29 @@ async function createDefaultUsers(): Promise<number[]> {
   const userIds: number[] = [];
   
   for (const user of users) {
+    // Check if user already exists
+    const existingUser = await new Promise<any>((resolve, reject) => {
+      db.get(
+        'SELECT id FROM users WHERE email = ?',
+        [user.email],
+        (err, row) => {
+          if (err) {
+            console.error('Error checking existing user:', err);
+            reject(err);
+          } else {
+            resolve(row);
+          }
+        }
+      );
+    });
+    
+    if (existingUser) {
+      console.log(`User with email ${user.email} already exists, skipping creation`);
+      userIds.push(existingUser.id);
+      continue;
+    }
+    
+    // User doesn't exist, create it
     const id = await new Promise<number>((resolve, reject) => {
       db.run(
         'INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)',
@@ -93,7 +116,7 @@ async function createDefaultUsers(): Promise<number[]> {
     userIds.push(id);
   }
   
-  console.log('Default users created');
+  console.log('Default users created or retrieved');
   return userIds;
 }
 
@@ -134,6 +157,29 @@ async function createMeasurementCategories(): Promise<Record<string, number>> {
   const categoryIds: Record<string, number> = {};
   
   for (const category of categories) {
+    // Check if category already exists
+    const existingCategory = await new Promise<any>((resolve, reject) => {
+      db.get(
+        'SELECT id FROM measurement_categories WHERE name = ?',
+        [category.name],
+        (err, row) => {
+          if (err) {
+            console.error('Error checking existing category:', err);
+            reject(err);
+          } else {
+            resolve(row);
+          }
+        }
+      );
+    });
+    
+    if (existingCategory) {
+      console.log(`Category ${category.name} already exists, skipping creation`);
+      categoryIds[category.name] = existingCategory.id;
+      continue;
+    }
+    
+    // Category doesn't exist, create it
     const id = await new Promise<number>((resolve, reject) => {
       db.run(
         'INSERT INTO measurement_categories (name, description) VALUES (?, ?)',
@@ -152,7 +198,7 @@ async function createMeasurementCategories(): Promise<Record<string, number>> {
     categoryIds[category.name] = id;
   }
   
-  console.log('Measurement categories created');
+  console.log('Measurement categories created or retrieved');
   return categoryIds;
 }
 
@@ -185,6 +231,29 @@ async function createSampleTeams(userIds: number[]): Promise<number[]> {
   const teamIds: number[] = [];
   
   for (const team of teams) {
+    // Check if team already exists
+    const existingTeam = await new Promise<any>((resolve, reject) => {
+      db.get(
+        'SELECT id FROM teams WHERE name = ?',
+        [team.name],
+        (err, row) => {
+          if (err) {
+            console.error('Error checking existing team:', err);
+            reject(err);
+          } else {
+            resolve(row);
+          }
+        }
+      );
+    });
+    
+    if (existingTeam) {
+      console.log(`Team ${team.name} already exists, skipping creation`);
+      teamIds.push(existingTeam.id);
+      continue;
+    }
+    
+    // Team doesn't exist, create it
     const id = await new Promise<number>((resolve, reject) => {
       db.run(
         'INSERT INTO teams (name, owner_id, description) VALUES (?, ?, ?)',
@@ -203,7 +272,7 @@ async function createSampleTeams(userIds: number[]): Promise<number[]> {
     teamIds.push(id);
   }
   
-  console.log('Sample teams created');
+  console.log('Sample teams created or retrieved');
   return teamIds;
 }
 
@@ -270,6 +339,29 @@ async function createSampleServices(userIds: number[], teamIds: number[]): Promi
   const serviceIds: number[] = [];
   
   for (const service of services) {
+    // Check if service already exists
+    const existingService = await new Promise<any>((resolve, reject) => {
+      db.get(
+        'SELECT id FROM services WHERE name = ?',
+        [service.name],
+        (err, row) => {
+          if (err) {
+            console.error('Error checking existing service:', err);
+            reject(err);
+          } else {
+            resolve(row);
+          }
+        }
+      );
+    });
+    
+    if (existingService) {
+      console.log(`Service ${service.name} already exists, skipping creation`);
+      serviceIds.push(existingService.id);
+      continue;
+    }
+    
+    // Service doesn't exist, create it
     const id = await new Promise<number>((resolve, reject) => {
       db.run(
         'INSERT INTO services (name, owner_id, team_id, description, service_type, resource_location) VALUES (?, ?, ?, ?, ?, ?)',
@@ -288,7 +380,7 @@ async function createSampleServices(userIds: number[], teamIds: number[]): Promi
     serviceIds.push(id);
   }
   
-  console.log('Sample services created');
+  console.log('Sample services created or retrieved');
   return serviceIds;
 }
 
@@ -321,6 +413,29 @@ async function createSampleMaturityModels(userIds: number[]): Promise<number[]> 
   const modelIds: number[] = [];
   
   for (const model of models) {
+    // Check if model already exists
+    const existingModel = await new Promise<any>((resolve, reject) => {
+      db.get(
+        'SELECT id FROM maturity_models WHERE name = ?',
+        [model.name],
+        (err, row) => {
+          if (err) {
+            console.error('Error checking existing maturity model:', err);
+            reject(err);
+          } else {
+            resolve(row);
+          }
+        }
+      );
+    });
+    
+    if (existingModel) {
+      console.log(`Maturity model ${model.name} already exists, skipping creation`);
+      modelIds.push(existingModel.id);
+      continue;
+    }
+    
+    // Model doesn't exist, create it
     const id = await new Promise<number>((resolve, reject) => {
       db.run(
         'INSERT INTO maturity_models (name, owner_id, description) VALUES (?, ?, ?)',
@@ -339,7 +454,7 @@ async function createSampleMaturityModels(userIds: number[]): Promise<number[]> 
     modelIds.push(id);
   }
   
-  console.log('Sample maturity models created');
+  console.log('Sample maturity models created or retrieved');
   return modelIds;
 }
 
